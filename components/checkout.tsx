@@ -73,7 +73,7 @@ export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
         stripe={stripePromise}
         options={{ fetchClientSecret }}
       >
-        <div className="min-h-[400px]">
+        <div className="min-h-[300px] sm:min-h-[400px]">
           <EmbeddedCheckout />
         </div>
       </EmbeddedCheckoutProvider>

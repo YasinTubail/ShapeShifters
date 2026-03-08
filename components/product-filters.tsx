@@ -71,7 +71,7 @@ export function ProductFilters({ collections }: ProductFiltersProps) {
               className="fixed inset-0 z-10" 
               onClick={() => setOpenFilter(null)}
             />
-            <div className="absolute top-full left-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[160px]">
+            <div className="absolute top-full left-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[160px] max-h-[60vh] overflow-y-auto">
               {options.map((option) => (
                 <button
                   key={option}
@@ -95,8 +95,8 @@ export function ProductFilters({ collections }: ProductFiltersProps) {
 
   return (
     <div className="border-b border-border py-4 mb-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-6">
+      <div className="flex items-center justify-between gap-4 overflow-x-auto scrollbar-none pb-1">
+        <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
           <FilterDropdown
             label="Collection"
             options={collectionOptions}
@@ -130,7 +130,7 @@ export function ProductFilters({ collections }: ProductFiltersProps) {
                   className="fixed inset-0 z-10" 
                   onClick={() => setOpenFilter(null)}
                 />
-                <div className="absolute top-full left-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[120px]">
+                <div className="absolute top-full left-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[120px] max-h-[60vh] overflow-y-auto">
                   <button
                     onClick={() => {
                       updateFilter('size', '')
@@ -187,7 +187,7 @@ export function ProductFilters({ collections }: ProductFiltersProps) {
                 className="fixed inset-0 z-10" 
                 onClick={() => setOpenFilter(null)}
               />
-              <div className="absolute top-full right-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[180px]">
+              <div className="absolute top-full right-0 mt-2 bg-card border border-border shadow-lg z-20 min-w-[180px] max-h-[60vh] overflow-y-auto">
                 {[
                   { value: 'newest', label: 'Newest' },
                   { value: 'price-low', label: 'Price: Low to High' },
