@@ -41,9 +41,14 @@ export async function adminLogin(username: string, password: string) {
     return { success: false, error: `Too many attempts. Try again in ${mins} minute${mins !== 1 ? 's' : ''}.` }
   }
 
-  const success = await createAdminSession(username, password)
-  if (success) resetRateLimit(`login:${ip}`)
-  return { success }
+  try {
+    const success = await createAdminSession(username, password)
+    if (success) resetRateLimit(`login:${ip}`)
+    return { success }
+  } catch (err) {
+    console.error('[adminLogin] unexpected error:', err)
+    return { success: false, error: 'An unexpected error occurred. Please try again.' }
+  }
 }
 
 export async function adminLogout() {

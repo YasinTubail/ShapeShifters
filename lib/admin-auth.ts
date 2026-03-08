@@ -10,7 +10,8 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 // ─── Crypto helpers ───────────────────────────────────────────────────────────
 
 export async function hashPassword(password: string): Promise<string> {
-  const secret = process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production'
+  // .trim() guards against accidental whitespace/newlines in env vars
+  const secret = (process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production').trim()
   const encoder = new TextEncoder()
   const key = await crypto.subtle.importKey(
     'raw', encoder.encode(secret),
@@ -21,7 +22,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export async function makeSessionToken(username: string): Promise<string> {
-  const secret = process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production'
+  const secret = (process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production').trim()
   const encoder = new TextEncoder()
   const key = await crypto.subtle.importKey(
     'raw', encoder.encode(secret),
@@ -41,7 +42,7 @@ export async function bootstrapIfEmpty(): Promise<AdminUser[]> {
   const users = readAdminUsers()
   if (users.length > 0) return users
 
-  const adminPassword = process.env.ADMIN_PASSWORD
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim()
   if (!adminPassword) return []
 
   const passwordHash = await hashPassword(adminPassword)
