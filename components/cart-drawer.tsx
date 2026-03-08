@@ -3,12 +3,14 @@
 import { X, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/lib/cart-context'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/currency'
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, removeItem, updateQuantity, totalPrice, isLoaded } = useCart()
+  const router = useRouter()
 
   if (!isCartOpen) return null
 
@@ -21,7 +23,7 @@ export function CartDrawer() {
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl flex flex-col overflow-hidden">
+      <div className="fixed right-0 top-0 h-[100dvh] w-full max-w-md bg-background z-50 shadow-xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-primary text-primary-foreground">
           <h2 className="text-lg font-bold tracking-wide uppercase">Your Bag</h2>
@@ -117,9 +119,12 @@ export function CartDrawer() {
             <p className="text-sm text-muted-foreground mb-6">
               Shipping calculated at checkout
             </p>
-            <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
-              <Link href="/checkout">Checkout</Link>
-            </Button>
+            <button
+              onClick={() => { setIsCartOpen(false); router.push('/checkout') }}
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 text-sm font-bold tracking-wide uppercase transition-colors"
+            >
+              Checkout
+            </button>
             <button
               onClick={() => setIsCartOpen(false)}
               className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4 transition-colors"

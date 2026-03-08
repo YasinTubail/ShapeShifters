@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const COOKIE_NAME = 'ss_admin_session'
 
-async function signPassword(password: string): Promise<string> {
+// Public admin routes — no auth required
+const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/forgot-password', '/admin/reset-password']
+
+async function makeSessionToken(username: string): Promise<string> {
   const secret = process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production'
   const encoder = new TextEncoder()
-
   const key = await crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
@@ -13,8 +15,7 @@ async function signPassword(password: string): Promise<string> {
     false,
     ['sign'],
   )
-
-  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(password))
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(`${username}:admin-session`))
   return Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
@@ -23,21 +24,32 @@ async function signPassword(password: string): Promise<string> {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Protect all /admin routes except the login page itself
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+  if (
+    pathname.startsWith('/admin') &&
+    !PUBLIC_ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(p + '?'))
+  ) {
     const session = request.cookies.get(COOKIE_NAME)
-    const adminPassword = process.env.ADMIN_PASSWORD
 
-    if (!session?.value || !adminPassword) {
+    if (!session?.value) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
 
-    const expected = await signPassword(adminPassword)
-    if (session.value !== expected) {
-      // Clear the invalid cookie and redirect
-      const response = NextResponse.redirect(new URL('/admin/login', request.url))
-      response.cookies.delete(COOKIE_NAME)
-      return response
+    // Cookie format: "username:HMAC(SESSION_SECRET, username + ':admin-session')"
+    const idx = session.value.indexOf(':')
+    if (idx === -1) {
+      const res = NextResponse.redirect(new URL('/admin/login', request.url))
+      res.cookies.delete(COOKIE_NAME)
+      return res
+    }
+
+    const username = session.value.slice(0, idx)
+    const token = session.value.slice(idx + 1)
+
+    const expected = await makeSessionToken(username)
+    if (!username || !token || token !== expected) {
+      const res = NextResponse.redirect(new URL('/admin/login', request.url))
+      res.cookies.delete(COOKIE_NAME)
+      return res
     }
   }
 

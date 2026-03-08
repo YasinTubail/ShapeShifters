@@ -6,10 +6,29 @@ import Image from 'next/image'
 export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center bg-primary overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-muted/30 rounded-full blur-3xl" />
+      {/* Giant faded logo watermark centred in the background */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <Image
+          src="/images/logo.png"
+          alt=""
+          width={700}
+          height={700}
+          className="opacity-[0.045] w-[340px] sm:w-[500px] lg:w-[680px] object-contain"
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-accent/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+        <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-primary-foreground/5 rounded-full blur-2xl" />
+      </div>
+
+      {/* Subtle vertical line accents */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/3 w-px h-full bg-gradient-to-b from-transparent via-accent/15 to-transparent" />
+        <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-primary-foreground/8 to-transparent" />
       </div>
 
       {/* Content */}

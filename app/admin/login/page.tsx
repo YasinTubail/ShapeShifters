@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Lock } from 'lucide-react'
+import { Eye, EyeOff, Lock, User } from 'lucide-react'
 import { adminLogin } from '@/app/actions/admin'
+import Link from 'next/link'
 
 export default function AdminLoginPage() {
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -17,11 +19,11 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError('')
 
-    const result = await adminLogin(password)
+    const result = await adminLogin(username.trim(), password)
     if (result.success) {
       router.push('/admin/dashboard')
     } else {
-      setError('Incorrect password. Please try again.')
+      setError(result.error ?? 'Incorrect username or password.')
       setLoading(false)
     }
   }
@@ -41,19 +43,36 @@ export default function AdminLoginPage() {
             </div>
             <div>
               <h2 className="font-bold text-[#01301e]">Sign in</h2>
-              <p className="text-sm text-gray-500">Enter your admin password</p>
+              <p className="text-sm text-gray-500">Enter your credentials to continue</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
             <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                required
+                autoComplete="username"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-[#01301e]"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Admin password"
+                placeholder="Password"
                 required
-                className="w-full px-4 py-3 border border-gray-200 text-sm focus:outline-none focus:border-[#01301e] pr-12"
+                autoComplete="current-password"
+                className="w-full pl-10 pr-12 py-3 border border-gray-200 text-sm focus:outline-none focus:border-[#01301e]"
               />
               <button
                 type="button"
@@ -70,12 +89,18 @@ export default function AdminLoginPage() {
 
             <button
               type="submit"
-              disabled={loading || !password}
+              disabled={loading || !username || !password}
               className="w-full bg-[#01301e] text-white py-3 font-medium tracking-wide hover:bg-[#0b6e4f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'SIGN IN'}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <Link href="/admin/forgot-password" className="text-sm text-[#0b6e4f] hover:text-[#01301e] transition-colors">
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         <p className="text-center text-[#53c87a]/60 text-xs mt-6">

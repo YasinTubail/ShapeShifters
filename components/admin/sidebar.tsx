@@ -10,6 +10,7 @@ import {
   LogOut,
   ExternalLink,
   Settings,
+  Users,
 } from 'lucide-react'
 import { adminLogout } from '@/app/actions/admin'
 
@@ -18,6 +19,7 @@ const navItems = [
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { href: '/admin/collections', label: 'Collections', icon: Layers },
+  { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
