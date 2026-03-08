@@ -60,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${orbitron.variable} ${inter.variable} font-sans antialiased`}>
+      <body className={`${orbitron.variable} ${inter.variable} font-sans antialiased overflow-x-hidden`}>
         <CartProvider>
           {children}
         </CartProvider>

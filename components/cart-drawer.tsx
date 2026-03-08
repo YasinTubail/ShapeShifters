@@ -15,13 +15,13 @@ export function CartDrawer() {
   return (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-primary/50 z-50 transition-opacity"
+      <div
+        className="fixed inset-0 bg-primary/50 z-40 transition-opacity"
         onClick={() => setIsCartOpen(false)}
       />
-      
+
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-primary text-primary-foreground">
           <h2 className="text-lg font-bold tracking-wide uppercase">Your Bag</h2>

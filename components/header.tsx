@@ -52,14 +52,14 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3">
-            <Image 
-              src="/images/logo.png" 
-              alt="SHAPESHIFTERS Logo" 
-              width={44} 
-              height={44} 
+            <Image
+              src="/images/logo.png"
+              alt="SHAPESHIFTERS Logo"
+              width={44}
+              height={44}
               className="h-9 w-9 sm:h-11 sm:w-11 object-contain"
             />
-            <h1 className="text-base sm:text-xl tracking-[0.25em] font-bold uppercase" style={{ fontFamily: 'var(--font-display)' }}>
+            <h1 className="hidden sm:block text-base sm:text-xl tracking-[0.25em] font-bold uppercase whitespace-nowrap" style={{ fontFamily: 'var(--font-display)' }}>
               SHAPESHIFTERS
             </h1>
           </Link>

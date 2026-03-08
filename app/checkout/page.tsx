@@ -70,7 +70,7 @@ export default function CheckoutPage() {
                 </span>
               </div>
 
-              <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+              <div className="grid lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-12">
                 {/* Cart Items - Left Side */}
                 <div className="lg:col-span-3 order-2 lg:order-1">
                   <div className="bg-card border border-border">
@@ -222,8 +222,8 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Stripe Checkout */}
-                    <div className="bg-card border border-border p-6">
-                      <h2 className="text-lg font-bold uppercase tracking-wide mb-6">Payment</h2>
+                    <div className="bg-card border border-border p-3 sm:p-6">
+                      <h2 className="text-lg font-bold uppercase tracking-wide mb-4 sm:mb-6">Payment</h2>
                       <Checkout cartItems={cartItems} />
                     </div>
 
