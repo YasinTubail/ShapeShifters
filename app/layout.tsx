@@ -5,14 +5,14 @@ import { CartProvider } from '@/lib/cart-context'
 import './globals.css'
 
 // LUCIDITY-style font for brand headings (geometric, futuristic, all-caps)
-const orbitron = Orbitron({ 
+const orbitron = Orbitron({
   subsets: ["latin"],
   variable: '--font-display',
   weight: ['400', '500', '600', '700', '800', '900']
 });
 
 // Clean sans-serif for body text
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   variable: '--font-sans',
 });
@@ -37,6 +37,18 @@ export const metadata: Metadata = {
       },
     ],
     apple: '/apple-icon.png',
+  },
+  openGraph: {
+    title: 'SHAPESHIFTERS',
+    description: 'Drop 01 — Egyptian Collection. 400gsm heavyweight hoodies. Worldwide shipping.',
+    url: 'https://sshifters.com',
+    images: [
+      {
+        url: 'https://sshifters.com/og-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
 }
 
