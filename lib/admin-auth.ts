@@ -1,16 +1,27 @@
 import 'server-only'
+import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 import { readAdminUsers, writeAdminUsers, type AdminUser } from './admin-users'
 
 export type { AdminUser, AdminRole } from './admin-users'
 
 const COOKIE_NAME = 'ss_admin_session'
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+const COOKIE_MAX_AGE = 60 * 60 * 8 // 8 hours (reduced from 7 days)
+
+const SALT_ROUNDS = 12
 
 // ─── Crypto helpers ───────────────────────────────────────────────────────────
 
+/** Hash a password with bcrypt (cost factor 12). */
 export async function hashPassword(password: string): Promise<string> {
-  // .trim() guards against accidental whitespace/newlines in env vars
+  return bcrypt.hash(password, SALT_ROUNDS)
+}
+
+/**
+ * Legacy HMAC-SHA256 verifier kept for one-time migration of old hashes.
+ * Detects and upgrades hashes transparently on next successful login.
+ */
+async function verifyLegacyHmac(password: string, storedHash: string): Promise<boolean> {
   const secret = (process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production').trim()
   const encoder = new TextEncoder()
   const key = await crypto.subtle.importKey(
@@ -18,9 +29,13 @@ export async function hashPassword(password: string): Promise<string> {
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
   )
   const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(password))
-  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+  const legacyHash = Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+  return legacyHash === storedHash
 }
 
+/** HMAC-SHA256 session token (still used for cookie integrity — fast & deterministic). */
 export async function makeSessionToken(username: string): Promise<string> {
   const secret = (process.env.SESSION_SECRET ?? 'dev-only-secret-change-in-production').trim()
   const encoder = new TextEncoder()
@@ -45,7 +60,7 @@ export async function bootstrapIfEmpty(): Promise<AdminUser[]> {
   const adminPassword = process.env.ADMIN_PASSWORD?.trim()
   if (!adminPassword) return []
 
-  const passwordHash = await hashPassword(adminPassword)
+  const passwordHash = await hashPassword(adminPassword) // bcrypt hash
   const seed: AdminUser = {
     id: crypto.randomUUID(),
     username: 'admin',
@@ -94,8 +109,25 @@ export async function createAdminSession(username: string, password: string): Pr
   const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.active)
   if (!user) return false
 
-  const hash = await hashPassword(password)
-  if (hash !== user.passwordHash) return false
+  // Detect hash format: bcrypt hashes begin with "$2b$" or "$2a$"
+  let passwordValid = false
+  if (user.passwordHash.startsWith('$2')) {
+    // Modern bcrypt — secure comparison
+    passwordValid = await bcrypt.compare(password, user.passwordHash)
+  } else {
+    // Legacy HMAC-SHA256 hash — verify then auto-migrate to bcrypt
+    passwordValid = await verifyLegacyHmac(password, user.passwordHash)
+    if (passwordValid) {
+      try {
+        const upgradedHash = await bcrypt.hash(password, SALT_ROUNDS)
+        writeAdminUsers(
+          users.map(u => u.id === user.id ? { ...u, passwordHash: upgradedHash } : u)
+        )
+      } catch { /* read-only filesystem on Vercel — hash upgrade skipped */ }
+    }
+  }
+
+  if (!passwordValid) return false
 
   // Update lastLogin — best-effort, may fail on read-only FS (Vercel)
   try {

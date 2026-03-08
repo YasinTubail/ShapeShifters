@@ -21,13 +21,19 @@ interface CartItem {
   selectedSize: string
 }
 
-export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
+export default function Checkout({
+  cartItems,
+  couponCode,
+}: {
+  cartItems: CartItem[]
+  couponCode?: string
+}) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchClientSecret = useCallback(async () => {
     try {
       setError(null)
-      const clientSecret = await startCheckoutSession(cartItems)
+      const clientSecret = await startCheckoutSession(cartItems, couponCode)
       if (!clientSecret) {
         throw new Error('Failed to create checkout session')
       }
@@ -37,7 +43,7 @@ export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
       setError(message)
       throw err
     }
-  }, [cartItems])
+  }, [cartItems, couponCode])
 
   if (!stripePromise) {
     return (
