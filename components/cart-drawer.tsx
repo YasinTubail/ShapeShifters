@@ -58,7 +58,7 @@ export function CartDrawer() {
           ) : (
             <div className="flex flex-col gap-6">
               {items.map((item) => (
-                <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+                <div key={`${item.id}-${item.selectedSize}-${item.selectedColor ?? ''}`} className="flex gap-4">
                   <div className="relative w-24 h-32 bg-secondary flex-shrink-0">
                     <Image
                       src={item.image}
@@ -75,7 +75,7 @@ export function CartDrawer() {
                         <p className="text-sm text-muted-foreground">Color: {item.color}</p>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id, item.selectedSize)}
+                        onClick={() => removeItem(item.id, item.selectedSize, item.selectedColor)}
                         className="text-muted-foreground hover:text-destructive transition-colors"
                         aria-label="Remove item"
                       >
@@ -85,7 +85,7 @@ export function CartDrawer() {
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center border border-border">
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1, item.selectedColor)}
                           className="p-2 hover:bg-secondary transition-colors"
                           aria-label="Decrease quantity"
                         >
@@ -93,7 +93,7 @@ export function CartDrawer() {
                         </button>
                         <span className="px-4 text-sm font-medium">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1, item.selectedColor)}
                           className="p-2 hover:bg-secondary transition-colors"
                           aria-label="Increase quantity"
                         >
