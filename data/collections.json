@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1st",
+    "name": "1ST Collection",
+    "slug": "1st",
+    "description": "Our debut collection celebrating Egyptian heritage through premium streetwear. Each piece tells a story of ancient civilization meeting modern style.",
+    "image": "/images/collections/1st/pharaoh-collage-hoodie.jpg",
+    "featured": true,
+    "active": true
+  },
+  {
+    "id": "essentials",
+    "name": "Essentials",
+    "slug": "essentials",
+    "description": "Timeless basics with the SHAPESHIFTERS touch. Quality fabrics, perfect fits, everyday style.",
+    "image": "/images/products/core-hoodie.jpg",
+    "featured": false,
+    "active": true
+  }
+]
