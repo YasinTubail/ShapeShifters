@@ -65,17 +65,6 @@ export async function startCheckoutSession(cartItems: CartItem[]) {
     metadata: {
       order_source: 'shapeshifters_web',
     },
-    // Automatic tax is handled by Stripe
-    invoice_creation: {
-      enabled: true,
-      invoice_data: {
-        description: 'SHAPESHIFTERS Order',
-        metadata: {
-          order_source: 'shapeshifters_web',
-        },
-        footer: 'Thank you for shopping with SHAPESHIFTERS!',
-      },
-    },
     // Custom text shown during checkout
     custom_text: {
       submit: {

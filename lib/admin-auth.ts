@@ -55,7 +55,9 @@ export async function bootstrapIfEmpty(): Promise<AdminUser[]> {
     lastLogin: null,
     active: true,
   }
-  writeAdminUsers([seed])
+  // Best-effort write — Vercel serverless has a read-only FS so this may throw.
+  // We return [seed] regardless so login still works in-memory for this request.
+  try { writeAdminUsers([seed]) } catch { /* read-only filesystem — that's OK */ }
   return [seed]
 }
 
@@ -94,8 +96,10 @@ export async function createAdminSession(username: string, password: string): Pr
   const hash = await hashPassword(password)
   if (hash !== user.passwordHash) return false
 
-  // Update lastLogin
-  writeAdminUsers(users.map(u => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u))
+  // Update lastLogin — best-effort, may fail on read-only FS (Vercel)
+  try {
+    writeAdminUsers(users.map(u => u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u))
+  } catch { /* ignore — read-only filesystem on Vercel serverless */ }
 
   const token = await makeSessionToken(user.username)
   const cookieStore = await cookies()
