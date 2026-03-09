@@ -24,3 +24,39 @@ model Coupon {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+// ── Order ──────────────────────────────────────────────────────────────────────
+model Order {
+  id              String      @id @default(cuid())
+  paymentMethod   String      @default("STRIPE")    // "STRIPE" | "COD"
+  paymentStatus   String      @default("PENDING")   // "PENDING" | "PAID" | "FAILED"
+  status          String      @default("PROCESSING") // "PROCESSING" | "SHIPPED" | "DELIVERED"
+  customerName    String
+  customerEmail   String?
+  customerPhone   String?
+  shippingLine1   String
+  shippingLine2   String?
+  shippingCity    String
+  shippingPostal  String?
+  shippingCountry String      @default("TR")
+  totalAmount     Float
+  couponCode      String?
+  stripeSessionId String?     // set for STRIPE orders (future webhook use)
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+}
+
+// ── OrderItem ──────────────────────────────────────────────────────────────────
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  size      String
+  color     String?
+}
