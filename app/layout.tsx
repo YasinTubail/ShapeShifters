@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Orbitron, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/lib/cart-context'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 // LUCIDITY-style font for brand headings (geometric, futuristic, all-caps)
@@ -64,6 +65,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
         </CartProvider>
+        <Toaster position="bottom-right" richColors closeButton />
         <Analytics />
       </body>
     </html>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import React, { useState, useTransition } from 'react'
 import {
   ChevronDown,
   ChevronUp,
@@ -9,7 +9,6 @@ import {
   Clock,
   Package,
   CheckCircle2,
-  ExternalLink,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { adminUpdateFulfillment } from '@/app/actions/fulfillments'
@@ -234,9 +233,8 @@ export function OrdersTable({ orders: initialOrders }: { orders: OrderWithFulfil
                 const fulfillmentStatus: FulfillmentStatus = order.fulfillment?.status ?? 'pending'
 
                 return (
-                  <>
+                  <React.Fragment key={order.id}>
                     <tr
-                      key={order.id}
                       className={`border-b border-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50/50'}`}
                     >
                       <td className="px-4 py-4">
@@ -295,7 +293,7 @@ export function OrdersTable({ orders: initialOrders }: { orders: OrderWithFulfil
 
                     {/* Expandable fulfillment row */}
                     {isExpanded && (
-                      <tr key={`${order.id}-fulfillment`}>
+                      <tr>
                         <td colSpan={8} className="p-0">
                           <FulfillmentForm
                             order={order}
@@ -304,7 +302,7 @@ export function OrdersTable({ orders: initialOrders }: { orders: OrderWithFulfil
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 )
               })}
             </tbody>
