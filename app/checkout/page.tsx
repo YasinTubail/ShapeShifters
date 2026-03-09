@@ -63,8 +63,8 @@ export default function CheckoutPage() {
     selectedSize: item.selectedSize
   }))
 
-  // Calculate shipping (free over 3000 TL)
-  const shippingCost = totalPrice >= 3000 ? 0 : 49
+  // Calculate shipping (free over 1500 TL)
+  const shippingCost = totalPrice >= 1500 ? 0 : 49
   const discountAmount = appliedCoupon?.discountAmount ?? 0
   const grandTotal = totalPrice + shippingCost - discountAmount
 
@@ -250,7 +250,7 @@ export default function CheckoutPage() {
                         </div>
                         {shippingCost > 0 && (
                           <p className="text-xs text-muted-foreground">
-                            Free shipping on orders over {formatPrice(3000)}
+                            Free shipping on orders over {formatPrice(1500)}
                           </p>
                         )}
                       </div>

@@ -2,7 +2,7 @@
   {
     "id": "1st-001",
     "name": "Pyramid Stamp Hoodie",
-    "price": 3290,
+    "price": 899,
     "image": "/images/collections/1st/pyramid-stamp-hoodie.jpg",
     "category": "Hoodies",
     "color": "White",
@@ -15,7 +15,7 @@
   {
     "id": "1st-002",
     "name": "Arabic Egypt Hoodie",
-    "price": 3290,
+    "price": 899,
     "image": "/images/collections/1st/arabic-egypt-hoodie.jpg",
     "category": "Hoodies",
     "color": "White",
@@ -28,7 +28,7 @@
   {
     "id": "1st-003",
     "name": "Pharaoh Legacy Hoodie",
-    "price": 3490,
+    "price": 899,
     "image": "/images/collections/1st/pharaoh-collage-hoodie.jpg",
     "category": "Hoodies",
     "color": "Black",
@@ -41,7 +41,7 @@
   {
     "id": "1st-004",
     "name": "Eye of Horus Hoodie",
-    "price": 3490,
+    "price": 899,
     "image": "/images/collections/1st/eye-of-horus-hoodie.jpg",
     "category": "Hoodies",
     "color": "Black",
@@ -54,7 +54,7 @@
   {
     "id": "1st-005",
     "name": "Egypt Stripes Hoodie",
-    "price": 3290,
+    "price": 899,
     "image": "/images/collections/1st/egypt-stripes-hoodie.jpg",
     "category": "Hoodies",
     "color": "White",
@@ -67,7 +67,7 @@
   {
     "id": "1st-006",
     "name": "Pyramids Vintage Hoodie",
-    "price": 3490,
+    "price": 899,
     "image": "/images/collections/1st/pyramids-vintage-hoodie.jpg",
     "category": "Hoodies",
     "color": "Black",
@@ -80,7 +80,7 @@
   {
     "id": "1st-007",
     "name": "Ankh Sphinx Hoodie",
-    "price": 3290,
+    "price": 899,
     "image": "/images/collections/1st/ankh-sphinx-hoodie.jpg",
     "category": "Hoodies",
     "color": "White",
@@ -93,7 +93,7 @@
   {
     "id": "ess-001",
     "name": "Shift Oversized Hoodie",
-    "price": 2890,
+    "price": 899,
     "image": "/images/products/core-hoodie.jpg",
     "category": "Hoodies",
     "color": "Forest",
@@ -106,7 +106,7 @@
   {
     "id": "ess-002",
     "name": "Transform Graphic Tee",
-    "price": 1450,
+    "price": 899,
     "image": "/images/products/essential-tee.jpg",
     "category": "Tees",
     "color": "Forest",
@@ -119,7 +119,7 @@
   {
     "id": "ess-003",
     "name": "Reality Cargo Pants",
-    "price": 3890,
+    "price": 899,
     "image": "/images/products/relaxed-joggers.jpg",
     "category": "Bottoms",
     "color": "Forest",
@@ -132,7 +132,7 @@
   {
     "id": "ess-004",
     "name": "Evolve Crewneck",
-    "price": 2390,
+    "price": 899,
     "image": "/images/products/statement-crewneck.jpg",
     "category": "Hoodies",
     "color": "Emerald",
@@ -145,7 +145,7 @@
   {
     "id": "ess-005",
     "name": "Phase Shorts",
-    "price": 1990,
+    "price": 899,
     "image": "/images/products/everyday-shorts.jpg",
     "category": "Bottoms",
     "color": "Forest",
@@ -158,7 +158,7 @@
   {
     "id": "ess-006",
     "name": "Shift Cap",
-    "price": 990,
+    "price": 899,
     "image": "/images/products/signature-cap.jpg",
     "category": "Accessories",
     "color": "Forest",
@@ -171,7 +171,7 @@
   {
     "id": "ess-007",
     "name": "Core Sock Pack",
-    "price": 790,
+    "price": 899,
     "image": "/images/products/minimal-socks.jpg",
     "category": "Accessories",
     "color": "Forest",
