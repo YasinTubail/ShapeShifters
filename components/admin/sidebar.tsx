@@ -12,17 +12,19 @@ import {
   Settings,
   Users,
   Tag,
+  Boxes,
 } from 'lucide-react'
 import { adminLogout } from '@/app/actions/admin'
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-  { href: '/admin/collections', label: 'Collections', icon: Layers },
-  { href: '/admin/coupons', label: 'Coupons', icon: Tag },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+  { href: '/admin/dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
+  { href: '/admin/products',   label: 'Products',   icon: Package },
+  { href: '/admin/inventory',  label: 'Inventory',  icon: Boxes },
+  { href: '/admin/orders',     label: 'Orders',     icon: ShoppingBag },
+  { href: '/admin/collections',label: 'Collections',icon: Layers },
+  { href: '/admin/coupons',    label: 'Coupons',    icon: Tag },
+  { href: '/admin/users',      label: 'Users',      icon: Users },
+  { href: '/admin/settings',   label: 'Settings',   icon: Settings },
 ]
 
 export function AdminSidebar() {
