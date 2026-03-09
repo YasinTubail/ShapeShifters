@@ -1,116 +1,131 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import {
-  readCoupons,
-  writeCoupons,
-  validateCouponSync,
-  type Coupon,
-} from '@/lib/server-coupons'
+import { Prisma } from '@prisma/client'
+import { db } from '@/lib/db'
 import { verifyAdminSession } from '@/lib/admin-auth'
 
-// ─── Storefront: validate a coupon ───────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────
 
-export interface ValidateCouponResult {
-  valid: boolean
-  error?: string
-  code?: string
-  discountAmount?: number
-  type?: 'percentage' | 'fixed'
-  value?: number
+export type CouponActionResult =
+  | { success: true; error?: never }
+  | { error: string; success?: never }
+
+export type ValidateCouponResult =
+  | { valid: true; code: string; discountAmount: number; type: string; value: number; error?: never }
+  | { valid: false; error: string }
+
+// ── Admin: Create ──────────────────────────────────────────────────────────────
+
+export async function createCoupon(formData: FormData): Promise<CouponActionResult> {
+  const session = await verifyAdminSession()
+  if (!session) return { error: 'Unauthorized.' }
+
+  // ── Formatting: trim + uppercase (per spec) ───────────────────────────────
+  const rawCode = (formData.get('code') as string | null) ?? ''
+  const code = rawCode.trim().toUpperCase()
+
+  const discountType   = (formData.get('discountType') as string | null) ?? ''
+  const discountValue  = parseFloat((formData.get('discountValue')  as string) ?? '0')
+  const minPurchase    = parseFloat((formData.get('minPurchase')    as string) ?? '0') || 0
+  const maxUsesRaw     = (formData.get('maxUses') as string | null)?.trim()
+  const maxUses        = maxUsesRaw ? parseInt(maxUsesRaw, 10) : null
+  const isActive       = formData.get('isActive')       === 'on'
+  const oneTimePerUser = formData.get('oneTimePerUser') === 'on'
+
+  // ── Validation ────────────────────────────────────────────────────────────
+  if (!code)
+    return { error: 'Coupon code is required.' }
+  if (code.length < 3 || code.length > 32)
+    return { error: 'Code must be between 3 and 32 characters.' }
+  if (!['PERCENTAGE', 'FIXED'].includes(discountType))
+    return { error: 'Select a valid discount type.' }
+  if (isNaN(discountValue) || discountValue <= 0)
+    return { error: 'Discount value must be a positive number.' }
+  if (discountType === 'PERCENTAGE' && discountValue > 100)
+    return { error: 'Percentage discount cannot exceed 100%.' }
+
+  try {
+    await db.coupon.create({
+      data: { code, discountType, discountValue, minPurchase, maxUses, isActive, oneTimePerUser },
+    })
+    revalidatePath('/admin/coupons')
+    return { success: true }
+  } catch (error) {
+    // ── P2002 = unique constraint violation → duplicate code ──────────────
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return { error: 'This discount code already exists.' }
+    }
+    console.error('[CREATE_COUPON_ERROR]:', error)
+    return { error: 'Failed to create coupon. Please try again.' }
+  }
 }
+
+// ── Admin: Toggle isActive (kill-switch) ───────────────────────────────────────
+
+export async function toggleCoupon(id: string): Promise<CouponActionResult> {
+  const session = await verifyAdminSession()
+  if (!session) return { error: 'Unauthorized.' }
+
+  try {
+    const coupon = await db.coupon.findUnique({ where: { id } })
+    if (!coupon) return { error: 'Coupon not found.' }
+
+    await db.coupon.update({ where: { id }, data: { isActive: !coupon.isActive } })
+    revalidatePath('/admin/coupons')
+    return { success: true }
+  } catch (error) {
+    console.error('[TOGGLE_COUPON_ERROR]:', error)
+    return { error: 'Failed to toggle coupon status.' }
+  }
+}
+
+// ── Admin: Delete ──────────────────────────────────────────────────────────────
+
+export async function deleteCoupon(id: string): Promise<CouponActionResult> {
+  const session = await verifyAdminSession()
+  if (!session) return { error: 'Unauthorized.' }
+
+  try {
+    await db.coupon.delete({ where: { id } })
+    revalidatePath('/admin/coupons')
+    return { success: true }
+  } catch (error) {
+    console.error('[DELETE_COUPON_ERROR]:', error)
+    return { error: 'Failed to delete coupon.' }
+  }
+}
+
+// ── Storefront: Validate (called from checkout page + stripe action) ───────────
 
 export async function validateCoupon(
   code: string,
   orderTotal: number,
-  email?: string,
 ): Promise<ValidateCouponResult> {
-  if (!code.trim()) return { valid: false, error: 'Please enter a coupon code.' }
-  const result = validateCouponSync(code, orderTotal, email)
-  if (!result.valid) return { valid: false, error: result.error }
-  return {
-    valid: true,
-    code: result.coupon!.code,
-    discountAmount: result.discountAmount,
-    type: result.coupon!.type,
-    value: result.coupon!.value,
-  }
-}
+  const normalizedCode = code.trim().toUpperCase()
+  if (!normalizedCode) return { valid: false, error: 'Please enter a coupon code.' }
 
-// ─── Admin: create a coupon ───────────────────────────────────────────────────
+  const coupon = await db.coupon.findUnique({ where: { code: normalizedCode } })
 
-export async function adminCreateCoupon(data: {
-  code: string
-  type: 'percentage' | 'fixed'
-  value: number
-  minOrderAmount: number
-  maxUses: number
-  expiresAt: string | null
-}): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyAdminSession())) return { success: false, error: 'Unauthorized' }
+  if (!coupon)
+    return { valid: false, error: 'Invalid coupon code.' }
+  if (!coupon.isActive)
+    return { valid: false, error: 'This coupon is no longer active.' }
+  if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses)
+    return { valid: false, error: 'This coupon has reached its usage limit.' }
+  if (orderTotal < coupon.minPurchase)
+    return {
+      valid: false,
+      error: `Minimum order of ₺${coupon.minPurchase.toLocaleString('tr-TR')} required.`,
+    }
 
-  const code = data.code.toUpperCase().trim()
-  if (!code) return { success: false, error: 'Coupon code is required.' }
+  const discountAmount =
+    coupon.discountType === 'PERCENTAGE'
+      ? Math.round((orderTotal * coupon.discountValue) / 100 * 100) / 100
+      : Math.min(coupon.discountValue, orderTotal)
 
-  const coupons = readCoupons()
-  if (coupons.some(c => c.code === code)) {
-    return { success: false, error: 'A coupon with this code already exists.' }
-  }
-
-  const newCoupon: Coupon = {
-    id: crypto.randomUUID(),
-    code,
-    type: data.type,
-    value: data.value,
-    minOrderAmount: data.minOrderAmount,
-    maxUses: data.maxUses,
-    usedCount: 0,
-    usedByEmails: [],
-    active: true,
-    expiresAt: data.expiresAt || null,
-    createdAt: new Date().toISOString(),
-  }
-
-  try {
-    writeCoupons([...coupons, newCoupon])
-    revalidatePath('/admin/coupons')
-    return { success: true }
-  } catch {
-    return { success: false, error: 'Failed to save coupon (read-only filesystem).' }
-  }
-}
-
-// ─── Admin: toggle active / inactive ─────────────────────────────────────────
-
-export async function adminToggleCoupon(
-  id: string,
-  active: boolean,
-): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyAdminSession())) return { success: false, error: 'Unauthorized' }
-
-  const coupons = readCoupons()
-  try {
-    writeCoupons(coupons.map(c => (c.id === id ? { ...c, active } : c)))
-    revalidatePath('/admin/coupons')
-    return { success: true }
-  } catch {
-    return { success: false, error: 'Failed to update coupon.' }
-  }
-}
-
-// ─── Admin: delete a coupon ───────────────────────────────────────────────────
-
-export async function adminDeleteCoupon(
-  id: string,
-): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyAdminSession())) return { success: false, error: 'Unauthorized' }
-
-  const coupons = readCoupons()
-  try {
-    writeCoupons(coupons.filter(c => c.id !== id))
-    revalidatePath('/admin/coupons')
-    return { success: true }
-  } catch {
-    return { success: false, error: 'Failed to delete coupon.' }
-  }
+  return { valid: true, code: coupon.code, discountAmount, type: coupon.discountType, value: coupon.discountValue }
 }

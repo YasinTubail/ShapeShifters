@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string
     discountAmount: number
-    type: 'percentage' | 'fixed'
+    type: string
     value: number
   } | null>(null)
 

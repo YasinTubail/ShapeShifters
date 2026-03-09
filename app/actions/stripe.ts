@@ -3,7 +3,7 @@
 import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { getProducts } from '@/lib/server-products'
-import { validateCouponSync } from '@/lib/server-coupons'
+import { validateCouponForCheckout } from '@/lib/server-coupons'
 
 interface CartItem {
   id: string
@@ -41,7 +41,7 @@ export async function startCheckoutSession(
         (sum, item) => sum + item.price * item.quantity,
         0,
       )
-      const couponResult = validateCouponSync(couponCode, orderTotal)
+      const couponResult = await validateCouponForCheckout(couponCode, orderTotal)
       if (couponResult.valid && couponResult.discountAmount) {
         discountMultiplier = 1 - couponResult.discountAmount / orderTotal
         appliedCouponCode = couponResult.coupon!.code

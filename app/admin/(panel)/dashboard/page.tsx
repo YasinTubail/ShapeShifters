@@ -15,7 +15,7 @@ import {
 import { getProducts, getCollections } from '@/lib/server-products'
 import { getStripe } from '@/lib/stripe'
 import { readFulfillments } from '@/lib/server-fulfillments'
-import { readCoupons } from '@/lib/server-coupons'
+import { db } from '@/lib/db'
 import { RevenueChart, type ChartDataPoint } from '@/components/admin/revenue-chart'
 import type { ProductVariant } from '@/lib/cart-context'
 
@@ -80,17 +80,16 @@ async function getDashboardData() {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export default async function AdminDashboard() {
-  const [products, collections, fulfillments, coupons, { totalRevenue, totalOrders, recentOrders, chartData }] =
+  const [products, collections, fulfillments, activeCoupons, { totalRevenue, totalOrders, recentOrders, chartData }] =
     await Promise.all([
       Promise.resolve(getProducts()),
       Promise.resolve(getCollections()),
       Promise.resolve(readFulfillments()),
-      Promise.resolve(readCoupons()),
+      db.coupon.count({ where: { isActive: true } }),
       getDashboardData(),
     ])
 
   const activeProducts = products.filter(p => p.active !== false).length
-  const activeCoupons = coupons.filter(c => c.active).length
 
   // Fulfillment pipeline
   const pendingFulfillment = fulfillments.filter(f => f.status === 'pending').length
@@ -127,7 +126,7 @@ export default async function AdminDashboard() {
       sub: 'All time', icon: TrendingUp, href: '/admin/orders', color: 'bg-purple-50 text-purple-700',
     },
     {
-      label: 'Active Coupons', value: activeCoupons, sub: `${coupons.length} total`,
+      label: 'Active Coupons', value: activeCoupons, sub: 'Active codes',
       icon: Tag, href: '/admin/coupons', color: 'bg-orange-50 text-orange-700',
     },
   ]
