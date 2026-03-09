@@ -1,13 +1,19 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { products, collections } from '@/lib/products'
 import { ProductCard } from './product-card'
 import { useMemo } from 'react'
+import type { Product } from '@/lib/cart-context'
+import type { Collection } from '@/lib/server-products'
 
-export function ProductGrid() {
+interface ProductGridProps {
+  products: Product[]
+  collections: Collection[]
+}
+
+export function ProductGrid({ products, collections }: ProductGridProps) {
   const searchParams = useSearchParams()
-  
+
   const category = searchParams.get('category') || 'All'
   const color = searchParams.get('color') || 'All'
   const size = searchParams.get('size') || ''
@@ -17,7 +23,6 @@ export function ProductGrid() {
   const filteredProducts = useMemo(() => {
     let filtered = [...products]
 
-    // Filter by collection
     if (collectionFilter !== 'All') {
       const collection = collections.find(c => c.name === collectionFilter)
       if (collection) {
@@ -50,7 +55,7 @@ export function ProductGrid() {
     }
 
     return filtered
-  }, [category, color, size, sort, collectionFilter])
+  }, [category, color, size, sort, collectionFilter, products, collections])
 
   if (filteredProducts.length === 0) {
     return (

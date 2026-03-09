@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { ProductCard } from './product-card'
-import { products } from '@/lib/products'
+import type { Product } from '@/lib/cart-context'
 
-export function FeaturedProducts() {
+export function FeaturedProducts({ products }: { products: Product[] }) {
   const featured = products.slice(0, 4)
 
   return (
@@ -17,8 +17,8 @@ export function FeaturedProducts() {
               Featured Pieces
             </h2>
           </div>
-          <Link 
-            href="/shop" 
+          <Link
+            href="/shop"
             className="text-sm font-medium tracking-wide text-muted-foreground hover:text-accent transition-colors uppercase group flex items-center gap-2"
           >
             View All

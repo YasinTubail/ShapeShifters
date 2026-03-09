@@ -8,9 +8,10 @@ import {
 import { loadStripe } from '@stripe/stripe-js'
 import { Loader2, AlertCircle } from 'lucide-react'
 
-import { startCheckoutSession } from '../app/actions/stripe'
+import { startCheckoutSession } from '@/app/actions/stripe'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null
 
 interface CartItem {
   id: string
@@ -20,13 +21,19 @@ interface CartItem {
   selectedSize: string
 }
 
-export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
+export default function Checkout({
+  cartItems,
+  couponCode,
+}: {
+  cartItems: CartItem[]
+  couponCode?: string
+}) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchClientSecret = useCallback(async () => {
     try {
       setError(null)
-      const clientSecret = await startCheckoutSession(cartItems)
+      const clientSecret = await startCheckoutSession(cartItems, couponCode)
       if (!clientSecret) {
         throw new Error('Failed to create checkout session')
       }
@@ -36,7 +43,19 @@ export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
       setError(message)
       throw err
     }
-  }, [cartItems])
+  }, [cartItems, couponCode])
+
+  if (!stripePromise) {
+    return (
+      <div className="bg-muted/50 border border-border p-6 text-center">
+        <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+        <h3 className="font-bold mb-2">Checkout Not Configured</h3>
+        <p className="text-sm text-muted-foreground">
+          Add <code className="bg-muted px-1 py-0.5 rounded">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> to your environment variables to enable checkout.
+        </p>
+      </div>
+    )
+  }
 
   if (error) {
     return (
@@ -60,7 +79,7 @@ export default function Checkout({ cartItems }: { cartItems: CartItem[] }) {
         stripe={stripePromise}
         options={{ fetchClientSecret }}
       >
-        <div className="min-h-[400px]">
+        <div className="min-h-[300px] sm:min-h-[400px]">
           <EmbeddedCheckout />
         </div>
       </EmbeddedCheckoutProvider>

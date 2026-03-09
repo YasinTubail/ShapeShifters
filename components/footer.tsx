@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Instagram, Twitter } from 'lucide-react'
+import { Instagram } from 'lucide-react'
 
 const footerLinks = {
   shop: [
@@ -45,11 +45,14 @@ export function Footer() {
               Bold streetwear for those who dare to stand out. Transform your style, shift your reality.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="p-2 bg-primary-foreground/10 hover:bg-accent hover:text-accent-foreground transition-colors" aria-label="Instagram">
+              <a
+                href="https://www.instagram.com/shapeshifter_tr/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-primary-foreground/10 hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Instagram"
+              >
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="p-2 bg-primary-foreground/10 hover:bg-accent hover:text-accent-foreground transition-colors" aria-label="Twitter">
-                <Twitter className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -131,7 +134,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 flex flex-col sm:flex-row justify-between gap-4 text-sm text-primary-foreground/50">
-          <p>2026 SHAPESHIFTERS. All rights reserved.</p>
+          <p>© 2026 SHAPESHIFTERS. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>

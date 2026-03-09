@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from 'react'
 import { useCart } from '@/lib/cart-context'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
@@ -7,12 +8,51 @@ import { CartDrawer } from '@/components/cart-drawer'
 import Checkout from '@/components/checkout'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, ShoppingBag, Loader2, Minus, Plus, Trash2, Package, Truck, Shield } from 'lucide-react'
+import { ChevronLeft, ShoppingBag, Loader2, Minus, Plus, Trash2, Package, Truck, Shield, Tag, CheckCircle2, XCircle } from 'lucide-react'
 import { formatPrice } from '@/lib/currency'
 import { Button } from '@/components/ui/button'
+import { validateCoupon } from '@/app/actions/coupons'
 
 export default function CheckoutPage() {
   const { items, totalPrice, isLoaded, removeItem, updateQuantity, totalItems } = useCart()
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('')
+  const [couponStatus, setCouponStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle')
+  const [couponError, setCouponError] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discountAmount: number
+    type: 'percentage' | 'fixed'
+    value: number
+  } | null>(null)
+
+  async function handleApplyCoupon() {
+    if (!couponInput.trim()) return
+    setCouponStatus('loading')
+    setCouponError('')
+    const result = await validateCoupon(couponInput, totalPrice)
+    if (result.valid && result.discountAmount !== undefined) {
+      setAppliedCoupon({
+        code: result.code!,
+        discountAmount: result.discountAmount,
+        type: result.type!,
+        value: result.value!,
+      })
+      setCouponStatus('valid')
+    } else {
+      setCouponStatus('invalid')
+      setCouponError(result.error ?? 'Invalid coupon code.')
+      setAppliedCoupon(null)
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null)
+    setCouponStatus('idle')
+    setCouponInput('')
+    setCouponError('')
+  }
 
   // Prepare cart items for Stripe
   const cartItems = items.map(item => ({
@@ -23,9 +63,10 @@ export default function CheckoutPage() {
     selectedSize: item.selectedSize
   }))
 
-  // Calculate shipping (free over 3000 TL)
-  const shippingCost = totalPrice >= 3000 ? 0 : 49
-  const grandTotal = totalPrice + shippingCost
+  // Calculate shipping (free over 1500 TL)
+  const shippingCost = totalPrice >= 1500 ? 0 : 49
+  const discountAmount = appliedCoupon?.discountAmount ?? 0
+  const grandTotal = totalPrice + shippingCost - discountAmount
 
   return (
     <>
@@ -70,7 +111,7 @@ export default function CheckoutPage() {
                 </span>
               </div>
 
-              <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+              <div className="grid lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-12">
                 {/* Cart Items - Left Side */}
                 <div className="lg:col-span-3 order-2 lg:order-1">
                   <div className="bg-card border border-border">
@@ -209,8 +250,68 @@ export default function CheckoutPage() {
                         </div>
                         {shippingCost > 0 && (
                           <p className="text-xs text-muted-foreground">
-                            Free shipping on orders over {formatPrice(3000)}
+                            Free shipping on orders over {formatPrice(1500)}
                           </p>
+                        )}
+                      </div>
+
+                        {/* Discount */}
+                        {appliedCoupon && (
+                          <div className="flex justify-between text-sm text-accent font-medium">
+                            <span className="flex items-center gap-1">
+                              <Tag className="h-3.5 w-3.5" />
+                              {appliedCoupon.code}
+                            </span>
+                            <span>-{formatPrice(appliedCoupon.discountAmount)}</span>
+                          </div>
+                        )}
+
+                      {/* Coupon input */}
+                      <div className="mb-6 border-t border-border pt-4">
+                        {appliedCoupon ? (
+                          <div className="flex items-center justify-between bg-accent/10 border border-accent/30 px-3 py-2">
+                            <span className="flex items-center gap-2 text-sm font-medium text-accent">
+                              <CheckCircle2 className="h-4 w-4" />
+                              {appliedCoupon.code} applied
+                            </span>
+                            <button
+                              onClick={handleRemoveCoupon}
+                              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-xs font-medium uppercase tracking-wide mb-2 text-muted-foreground">
+                              Discount Code
+                            </p>
+                            <div className="flex gap-2">
+                              <input
+                                value={couponInput}
+                                onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponStatus('idle'); setCouponError('') }}
+                                onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                                placeholder="Enter code"
+                                className="flex-1 border border-border bg-background px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-1 focus:ring-accent"
+                              />
+                              <Button
+                                onClick={handleApplyCoupon}
+                                disabled={couponStatus === 'loading' || !couponInput.trim()}
+                                size="sm"
+                                variant="outline"
+                                className="font-bold text-xs uppercase tracking-wide"
+                              >
+                                {couponStatus === 'loading'
+                                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  : 'Apply'}
+                              </Button>
+                            </div>
+                            {couponStatus === 'invalid' && (
+                              <p className="mt-1.5 text-xs text-destructive flex items-center gap-1">
+                                <XCircle className="h-3.5 w-3.5" /> {couponError}
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
 
@@ -222,9 +323,9 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Stripe Checkout */}
-                    <div className="bg-card border border-border p-6">
-                      <h2 className="text-lg font-bold uppercase tracking-wide mb-6">Payment</h2>
-                      <Checkout cartItems={cartItems} />
+                    <div className="bg-card border border-border p-3 sm:p-6">
+                      <h2 className="text-lg font-bold uppercase tracking-wide mb-4 sm:mb-6">Payment</h2>
+                      <Checkout cartItems={cartItems} couponCode={appliedCoupon?.code} />
                     </div>
 
                     {/* Trust Badges */}

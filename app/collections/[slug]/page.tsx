@@ -1,24 +1,24 @@
-"use client"
-
-import { use } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { CartDrawer } from '@/components/cart-drawer'
 import { ProductCard } from '@/components/product-card'
-import { collections, getProductsByCollection, getCollectionBySlug } from '@/lib/products'
+import { getActiveCollections, getProductsByCollection, getCollectionBySlug } from '@/lib/server-products'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 interface CollectionPageProps {
   params: Promise<{ slug: string }>
 }
 
-export default function CollectionPage({ params }: CollectionPageProps) {
-  const { slug } = use(params)
+export default async function CollectionPage({ params }: CollectionPageProps) {
+  const { slug } = await params
   const collection = getCollectionBySlug(slug)
-  
+  const collections = getActiveCollections()
+
   if (!collection) {
     notFound()
   }

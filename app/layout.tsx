@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Orbitron, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/lib/cart-context'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 // LUCIDITY-style font for brand headings (geometric, futuristic, all-caps)
@@ -17,10 +18,11 @@ const inter = Inter({
   variable: '--font-sans',
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://shapeshifters.com'
+
 export const metadata: Metadata = {
   title: 'SHAPESHIFTERS | Transform Your Style',
   description: 'Bold streetwear for those who dare to stand out. Discover the SHAPESHIFTERS collection.',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
@@ -41,10 +43,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'SHAPESHIFTERS',
     description: 'Drop 01 — Egyptian Collection. 400gsm heavyweight hoodies. Worldwide shipping.',
-    url: 'https://sshifters.com',
+    url: siteUrl,
     images: [
       {
-        url: 'https://sshifters.com/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
       },
@@ -59,10 +61,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${orbitron.variable} ${inter.variable} font-sans antialiased`}>
+      <body className={`${orbitron.variable} ${inter.variable} font-sans antialiased overflow-x-hidden`}>
         <CartProvider>
           {children}
         </CartProvider>
+        <Toaster position="bottom-right" richColors closeButton />
         <Analytics />
       </body>
     </html>

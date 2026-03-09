@@ -2,10 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) {
+    throw new Error('STRIPE_SECRET_KEY is not configured')
+  }
+  return new Stripe(key)
+}
 
 export async function POST(request: NextRequest) {
+   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    return NextResponse.json(
+      { error: 'Webhook secret not configured' },
+      { status: 500 }
+    )
+  }
+
+  let stripe: Stripe
+  try {
+    stripe = getStripe()
+  } catch {
+    return NextResponse.json(
+      { error: 'Stripe not configured' },
+      { status: 500 }
+    )
+  }
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
@@ -61,13 +83,13 @@ export async function POST(request: NextRequest) {
             shipping: 0, // Free shipping or calculate based on your logic
             total: (fullSession.amount_total || 0) / 100,
             currency: fullSession.currency?.toUpperCase() || 'TRY',
-            shippingAddress: fullSession.shipping_details?.address ? {
-              line1: fullSession.shipping_details.address.line1 || '',
-              line2: fullSession.shipping_details.address.line2 || '',
-              city: fullSession.shipping_details.address.city || '',
-              state: fullSession.shipping_details.address.state || '',
-              postalCode: fullSession.shipping_details.address.postal_code || '',
-              country: fullSession.shipping_details.address.country || 'TR',
+            shippingAddress: fullSession.collected_information?.shipping_details?.address ? {
+              line1: fullSession.collected_information.shipping_details.address.line1 || '',
+              line2: fullSession.collected_information.shipping_details.address.line2 || '',
+              city: fullSession.collected_information.shipping_details.address.city || '',
+              state: fullSession.collected_information.shipping_details.address.state || '',
+              postalCode: fullSession.collected_information.shipping_details.address.postal_code || '',
+              country: fullSession.collected_information.shipping_details.address.country || 'TR',
             } : null,
             orderDate: new Date().toLocaleDateString('tr-TR', {
               year: 'numeric',

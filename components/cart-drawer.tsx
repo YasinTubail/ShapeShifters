@@ -3,25 +3,27 @@
 import { X, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/lib/cart-context'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/currency'
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, removeItem, updateQuantity, totalPrice, isLoaded } = useCart()
+  const router = useRouter()
 
   if (!isCartOpen) return null
 
   return (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-primary/50 z-50 transition-opacity"
+      <div
+        className="fixed inset-0 bg-primary/50 z-40 transition-opacity"
         onClick={() => setIsCartOpen(false)}
       />
-      
+
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background z-50 shadow-xl flex flex-col">
+      <div className="fixed right-0 top-0 h-[100dvh] w-full max-w-md bg-background z-50 shadow-xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-primary text-primary-foreground">
           <h2 className="text-lg font-bold tracking-wide uppercase">Your Bag</h2>
@@ -56,7 +58,7 @@ export function CartDrawer() {
           ) : (
             <div className="flex flex-col gap-6">
               {items.map((item) => (
-                <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+                <div key={`${item.id}-${item.selectedSize}-${item.selectedColor ?? ''}`} className="flex gap-4">
                   <div className="relative w-24 h-32 bg-secondary flex-shrink-0">
                     <Image
                       src={item.image}
@@ -73,7 +75,7 @@ export function CartDrawer() {
                         <p className="text-sm text-muted-foreground">Color: {item.color}</p>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id, item.selectedSize)}
+                        onClick={() => removeItem(item.id, item.selectedSize, item.selectedColor)}
                         className="text-muted-foreground hover:text-destructive transition-colors"
                         aria-label="Remove item"
                       >
@@ -83,7 +85,7 @@ export function CartDrawer() {
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center border border-border">
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1, item.selectedColor)}
                           className="p-2 hover:bg-secondary transition-colors"
                           aria-label="Decrease quantity"
                         >
@@ -91,7 +93,7 @@ export function CartDrawer() {
                         </button>
                         <span className="px-4 text-sm font-medium">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1, item.selectedColor)}
                           className="p-2 hover:bg-secondary transition-colors"
                           aria-label="Increase quantity"
                         >
@@ -117,9 +119,12 @@ export function CartDrawer() {
             <p className="text-sm text-muted-foreground mb-6">
               Shipping calculated at checkout
             </p>
-            <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
-              <Link href="/checkout">Checkout</Link>
-            </Button>
+            <button
+              onClick={() => { setIsCartOpen(false); router.push('/checkout') }}
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 text-sm font-bold tracking-wide uppercase transition-colors"
+            >
+              Checkout
+            </button>
             <button
               onClick={() => setIsCartOpen(false)}
               className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4 transition-colors"

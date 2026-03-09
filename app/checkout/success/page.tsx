@@ -219,18 +219,21 @@ function SuccessContent() {
                 title: 'Kargoya Verilecek',
                 description: 'Tahmini teslimat: 3-5 iş günü',
               },
-            ].map((step, index) => (
+            ].map((step, index) => {
+              const Icon = step.icon
+              return (
               <div 
                 key={index} 
                 className="bg-card border border-border p-6 text-center"
               >
                 <div className="w-12 h-12 bg-accent/20 flex items-center justify-center mx-auto mb-4">
-                  <step.icon className="h-6 w-6 text-accent" />
+                  <Icon className="h-6 w-6 text-accent" />
                 </div>
                 <h4 className="font-bold mb-2">{step.title}</h4>
                 <p className="text-sm text-muted-foreground">{step.description}</p>
               </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* Trust Badges */}

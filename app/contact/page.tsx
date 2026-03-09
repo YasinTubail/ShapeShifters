@@ -2,7 +2,7 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { CartDrawer } from '@/components/cart-drawer'
 import { Button } from '@/components/ui/button'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { Instagram, Mail, MapPin, Phone } from 'lucide-react'
 
 export const metadata = {
   title: 'Contact | SHAPESHIFTERS',
@@ -104,9 +104,18 @@ export default function ContactPage() {
                       <Phone className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <h3 className="font-bold mb-1">Phone</h3>
-                      <p className="text-muted-foreground text-sm">1-800-SHIFTER</p>
-                      <p className="text-muted-foreground text-xs">Mon-Fri, 9am-6pm EST</p>
+                      <h3 className="font-bold mb-1">Phone / WhatsApp</h3>
+                      <a href="tel:+905078059057" className="text-muted-foreground text-sm hover:text-accent transition-colors">+90 507 805 90 57</a>
+                      <p className="text-muted-foreground text-xs mt-0.5">Mon–Sat, 9:00–20:00 (TR)</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 bg-secondary flex items-center justify-center flex-shrink-0">
+                      <Instagram className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold mb-1">Instagram</h3>
+                      <a href="https://www.instagram.com/shapeshifter_tr/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-sm hover:text-accent transition-colors">@shapeshifter_tr</a>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -115,10 +124,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-bold mb-1">Location</h3>
-                      <p className="text-muted-foreground text-sm">
-                        123 Transform Ave<br />
-                        Los Angeles, CA 90210
-                      </p>
+                      <p className="text-muted-foreground text-sm">Turkey</p>
                     </div>
                   </div>
                 </div>
@@ -126,8 +132,8 @@ export default function ContactPage() {
                 <div className="mt-12 p-6 bg-secondary">
                   <h3 className="font-bold mb-2">Response Time</h3>
                   <p className="text-sm text-muted-foreground">
-                    We typically respond to all inquiries within 24-48 business hours. 
-                    For urgent order issues, please include your order number in the subject line.
+                    We typically respond within 24 hours. For the fastest reply,
+                    reach us on Instagram or WhatsApp.
                   </p>
                 </div>
               </div>

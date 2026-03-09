@@ -1,7 +1,9 @@
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { CartDrawer } from '@/components/cart-drawer'
-import { collections } from '@/lib/products'
+import { getActiveCollections } from '@/lib/server-products'
+
+export const dynamic = 'force-dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -11,6 +13,7 @@ export const metadata = {
 }
 
 export default function CollectionsPage() {
+  const collections = getActiveCollections()
   return (
     <div className="min-h-screen bg-background">
       <Header />
